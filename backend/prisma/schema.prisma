@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String?
-  googleId      String?   @unique
-  name          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Related models for productivity features
-  tasks         Task[]
-  reminders     Reminder[]
-  speeches      Speech[]
-  translations  Translation[]
+  tasks        Task[]
+  reminders    Reminder[]
+  speeches     Speech[]
+  translations Translation[]
 }
 
 enum PriorityOrder {
@@ -30,47 +30,49 @@ enum PriorityOrder {
 }
 
 model Task {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   description String?
-  dueDate     DateTime?
-  completed   Boolean   @default(false)
+  deadline    DateTime?
   priority    PriorityOrder @default(LOW)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  completed   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  // @@index([userId])
 }
 
 model Reminder {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
   dueDate     DateTime
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Speech {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   content   String
-  isPrivate Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  isPrivate Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Translation {
-  id           String   @id @default(cuid())
-  originalText String
+  id             String   @id @default(cuid())
+  originalText   String
   translatedText String
-  fromLanguage String
-  toLanguage   String
-  createdAt    DateTime @default(now())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-} 
+  fromLanguage   String
+  toLanguage     String
+  createdAt      DateTime @default(now())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+}

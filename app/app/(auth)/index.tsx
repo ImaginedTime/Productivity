@@ -13,8 +13,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
-import { useUserContext } from "@/context/userContext";
 import { storeData } from "@/utils/storage";
+import { useUserContext } from "@/context/userContext";
 
 export default function AuthScreen() {
 	const navigation = useNavigation<any>();
@@ -22,7 +22,7 @@ export default function AuthScreen() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	const { isLoggedIn, setIsLoggedIn, setUser } = useUserContext();
+	const { user, setUser, token, setToken } = useUserContext();
 
 	const [formData, setFormData] = useState({
 		email: "",
@@ -42,34 +42,40 @@ export default function AuthScreen() {
 					password: formData.password,
 				});
 
-				console.log(response.data);
+				// Store token
+				storeData("token", response.data.token);
+				storeData("userData", response.data.user);
+				setUser(response.data.user);
+				setToken(response.data.token);
 
-				if (response.data.user) {
-					await storeData("userData", response.data.user);
-					setUser(response.data.user);
-					setIsLoggedIn(true);
-					navigation.replace("(tabs)");
-				}
+				// Configure axios defaults for future requests
+				axios.defaults.headers.common[
+					"Authorization"
+				] = `Bearer ${response.data.token}`;
+
+				navigation.replace("(tabs)");
 			} else {
 				// Register
-				await axios.post(`/auth/register`, {
+				const response = await axios.post(`/auth/register`, {
 					email: formData.email,
 					password: formData.password,
 					name: formData.name,
 				});
 
-				// Auto login after registration
-				const loginResponse = await axios.post(`auth/login`, {
-					email: formData.email,
-					password: formData.password,
-				});
+				// Store token
+				storeData("token", response.data.token);
+				storeData("userData", response.data.user);
+				setUser(response.data.user);
+				setToken(response.data.token);
 
-				if (loginResponse.data.user) {
-					await storeData("userData", loginResponse.data.user);
-					setUser(loginResponse.data.user);
-					setIsLoggedIn(true);
-					navigation.replace("(tabs)");
-				}
+				// Configure axios defaults for future requests
+				axios.defaults.headers.common[
+					"Authorization"
+				] = `Bearer ${response.data.token}`;
+
+				navigation.replace("(tabs)", {
+					screen: "index",
+				});
 			}
 		} catch (err: any) {
 			console.log(err);

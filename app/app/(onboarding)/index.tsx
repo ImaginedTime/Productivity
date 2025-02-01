@@ -14,12 +14,9 @@ import { Swipeable } from "react-native-gesture-handler";
 import onboardingData from "@/constants/onboardingData";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
-import { useUserContext } from "@/context/userContext";
 
 export default function index() {
 	const navigator = useNavigation<any>();
-
-	const { isLoggedIn } = useUserContext();
 
 	const paginationCount = onboardingData.length;
 
@@ -176,8 +173,7 @@ export default function index() {
 										index >= i
 											? { backgroundColor: "#FFB946" }
 											: {
-													backgroundColor:
-														"#99999999",
+                          backgroundColor: "#99999999",
 											  },
 									]}
 								></Animated.View>
@@ -208,11 +204,6 @@ export default function index() {
 
 				<Pressable
 					onPress={(e) => {
-						if (isLoggedIn)
-							navigator.replace("(tabs)", {
-								screen: "index",
-							});
-						else
 							navigator.replace("(auth)", {
 								screen: "index",
 							});
