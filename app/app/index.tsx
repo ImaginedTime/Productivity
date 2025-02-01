@@ -17,15 +17,12 @@ export default function SplashScreen() {
 	}, []);
 
 	return (
-		<View className="flex-1 p-2 justify-center items-center bg-red-400">
+		<View className="flex-1 p-2 justify-center items-center">
 			<Image
 				source={require("@/assets/images/icon.png")}
 				resizeMode="contain"
-				className="w-32 h-32"
-				width={100}
-				height={100}
+				className="w-full h-full"
 			/>
-			<Text className="text-green-500">kjhdfshkg</Text>
 		</View>
 	);
 }

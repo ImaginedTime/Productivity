@@ -17,10 +17,6 @@ router.post("/register", (async (req: AuthRequest, res: Response) => {
   try {
     const { email, password, name } = req.body;
 
-    console.log(req.body);
-
-    console.log(email, password, name);
-
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });

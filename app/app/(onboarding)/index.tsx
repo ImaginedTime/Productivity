@@ -14,9 +14,12 @@ import { Swipeable } from "react-native-gesture-handler";
 import onboardingData from "@/constants/onboardingData";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
+import { useUserContext } from "@/context/userContext";
 
 export default function index() {
 	const navigator = useNavigation<any>();
+
+	const { isLoggedIn } = useUserContext();
 
 	const paginationCount = onboardingData.length;
 
@@ -205,14 +208,14 @@ export default function index() {
 
 				<Pressable
 					onPress={(e) => {
-						if (
-							onboardingData[index].buttonText === "Get Started"
-						) {
+						if (isLoggedIn)
+							navigator.replace("(tabs)", {
+								screen: "index",
+							});
+						else
 							navigator.replace("(auth)", {
 								screen: "index",
 							});
-						}
-						handleSwipe(e);
 					}}
 					className="rounded-full overflow-hidden mb-6"
 				>
