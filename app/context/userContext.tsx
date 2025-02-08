@@ -1,12 +1,10 @@
-import { clearData, getData } from "@/utils/storage";
+import { clearData, getData, storeData } from "@/utils/storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import axios from "axios";
 
 import { useNavigation } from "expo-router";
 import { Alert, ToastAndroid } from "react-native";
-import { Task } from "@/app/(tabs)/tasks";
-import { SavedSpeech } from "@/app/(tabs)/documents";
 
 type UserContextType = {
 	user: any | null;
@@ -17,8 +15,8 @@ type UserContextType = {
 	setToken: (token: string) => void;
 	tasks: Task[];
 	setTasks: (tasks: Task[]) => void;
-	savedSpeeches: SavedSpeech[];
-	setSavedSpeeches: (speeches: SavedSpeech[]) => void;
+	savedSpeeches: SavedSpeechType[];
+	setSavedSpeeches: (speeches: SavedSpeechType[]) => void;
 };
 
 const UserContext = createContext<UserContextType>({
@@ -34,6 +32,22 @@ const UserContext = createContext<UserContextType>({
 	setSavedSpeeches: () => {},
 });
 
+interface SavedSpeechType {
+	id: string;
+	createdAt: string;
+	template: string
+	speech: string;
+}
+
+export interface Task {
+	id: string;
+	priority: "HIGH" | "MEDIUM" | "LOW";
+	title: string;
+	description: string;
+	completed: false;
+	deadline: Date;
+}
+
 const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 	const [user, setUser] = React.useState<any | null>({
 		email: "",
@@ -43,31 +57,60 @@ const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 
 	const [token, setToken] = React.useState<string | null>(null);
 	const [tasks, setTasks] = useState<Task[]>([]);
-	const [savedSpeeches, setSavedSpeeches] = useState<SavedSpeech[]>([]);
+	const [savedSpeeches, setSavedSpeeches] = useState<SavedSpeechType[]>([]);
 
 	const fetchTasks = async () => {
 		try {
 			const response = await axios.get("/tasks");
 			console.log(response.data);
 			setTasks(response.data);
+			// Store tasks in AsyncStorage
+			await storeData("tasks", response.data);
 		} catch (error) {
-			//   Alert.alert("Error", "Failed to fetch tasks");
+			// If API fails, try to get tasks from AsyncStorage
+			const storedTasks = await getData("tasks");
+			if (storedTasks) {
+				setTasks(storedTasks);
+			}
 		}
 	};
 
 	useEffect(() => {
-		getData("userData").then((data) => {
-			if (data) {
-				setUser(data);
+		const initializeData = async () => {
+			// Get user data
+			const userData = await getData("userData");
+			if (userData) {
+				setUser(userData);
 				setIsLoggedIn(true);
 			}
-		});
-		getData("token").then((data) => {
-			if (data) {
-				setToken(data);
+
+			// Get token
+			const storedToken = await getData("token");
+			if (storedToken) {
+				setToken(storedToken);
 				setIsLoggedIn(true);
 			}
-		});
+
+			// Get tasks from AsyncStorage first
+			const storedTasks = await getData("tasks");
+			if (storedTasks) {
+				setTasks(storedTasks);
+			}
+
+			// Then fetch latest from API
+			fetchTasks();
+		};
+
+		initializeData();
+		
+		const initializeSpeeches = async () => {
+			const speeches = await getData("savedSpeeches").then((data) => {
+				setSavedSpeeches(data);
+			});
+		}
+
+		initializeSpeeches();
+
 	}, []);
 
 	return (

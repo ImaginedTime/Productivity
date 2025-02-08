@@ -15,6 +15,7 @@ import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { storeData } from "@/utils/storage";
 import { useUserContext } from "@/context/userContext";
+import { theme } from '@/constants/theme';
 
 export default function AuthScreen() {
 	const navigation = useNavigation<any>();
@@ -101,23 +102,26 @@ export default function AuthScreen() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			className="flex-1 bg-[#1A1A1A]"
+			className={`flex-1`}
+			style={{ backgroundColor: theme.colors.text.primary}}
 		>
 			<ScrollView className="flex-1">
 				<LinearGradient
-					colors={["#FFB946dd", "#1A1A1A"]}
+					colors={[`${theme.colors.primary}dd`, theme.colors.text.primary]}
 					className="w-full h-[300px] items-center justify-center"
 				>
 					<Text className="text-4xl font-bold text-white mb-2">
 						BureauAssist
 					</Text>
-					<Text className="text-lg text-white/80">
+					<Text className={`text-lg`} style={{ color: `${theme.colors.text.light}bb`}}>
 						Your AI-Powered Assistant
 					</Text>
 				</LinearGradient>
 
 				<View className="px-8 pt-8 mb-6">
-					<Text className="text-2xl font-bold text-white mb-8">
+					<Text className={`text-2xl font-bold mb-8`}
+						style={{ color: theme.colors.text.light}}
+					>
 						{isLogin ? "Welcome Back" : "Create Account"}
 					</Text>
 
@@ -177,15 +181,17 @@ export default function AuthScreen() {
 						className="rounded-lg overflow-hidden mb-4"
 					>
 						<LinearGradient
-							colors={["#FFB946", "#FFD700"]}
+							colors={theme.colors.gradient.primary as any}
 							className="py-4 rounded-lg"
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 1 }}
 						>
 							{loading ? (
-								<ActivityIndicator color="#1A1A1A" />
+								<ActivityIndicator color={theme.colors.text.primary} />
 							) : (
-								<Text className="text-[#1A1A1A] text-center font-bold text-lg">
+								<Text className={`text-center font-bold text-lg`}
+									style={{ color: theme.colors.text.primary }}
+								>
 									{isLogin ? "Login" : "Register"}
 								</Text>
 							)}
@@ -196,18 +202,27 @@ export default function AuthScreen() {
 						onPress={handleGoogleAuth}
 						className="bg-white/10 py-4 rounded-lg mb-4 flex-row justify-center items-center"
 					>
-						<AntDesign name="google" size={24} color="#FFB946" />
-						<Text className="text-white font-semibold ml-2">
+						<AntDesign name="google" size={24} color={theme.colors.primary} />
+						<Text className={`font-semibold ml-2`}
+							style={{ color: theme.colors.text.light}}
+						>
 							Continue with Google
 						</Text>
 					</Pressable>
 
 					<Pressable
 						onPress={handleGuestEntry}
-						className="border border-[#FFB946] py-4 rounded-lg mb-6 flex-row justify-center items-center"
+						className={`border py-4 rounded-lg mb-6 flex-row justify-center items-center`}
+						style={{
+							borderColor: theme.colors.primary,
+						}}
 					>
-						<AntDesign name="user" size={24} color="#FFB946" />
-						<Text className="text-[#FFB946] font-semibold ml-2">
+						<AntDesign name="user" size={24} color={theme.colors.primary} />
+						<Text className={`font-semibold ml-2`}
+							style={{
+								color: theme.colors.primary,
+							}}
+						>
 							Continue as Guest
 						</Text>
 					</Pressable>
@@ -216,7 +231,11 @@ export default function AuthScreen() {
 						onPress={() => setIsLogin(!isLogin)}
 						className="items-center"
 					>
-						<Text className="text-[#FFB946]">
+						<Text className={`text-[${theme.colors.primary}]`}
+							style={{
+								color: theme.colors.primary,
+							}}
+						>
 							{isLogin
 								? "Don't have an account? Register"
 								: "Already have an account? Login"}

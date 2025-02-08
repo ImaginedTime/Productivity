@@ -14,6 +14,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import onboardingData from "@/constants/onboardingData";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
+import { theme } from '@/constants/theme';
 
 export default function index() {
 	const navigator = useNavigation<any>();
@@ -128,6 +129,19 @@ export default function index() {
 		};
 	};
 
+	const styles = StyleSheet.create({
+		pagination: {
+			flexDirection: "row",
+			justifyContent: "center",
+		},
+		paginationIcon: {
+			height: 10,
+			backgroundColor: theme.colors.card,
+			borderRadius: theme.borderRadius.full,
+			marginHorizontal: theme.spacing.xs,
+		},
+	});
+
 	return (
 		<View
 			className="flex-1"
@@ -159,7 +173,10 @@ export default function index() {
 			</Animated.View>
 
 			<View
-				className={`rounded-t-3xl px-10 py-4 bg-white justify-between flex-[1]`}
+				className={`rounded-t-3xl px-10 py-4 justify-between flex-[1]`}
+				style={{
+					backgroundColor: theme.colors.card,
+				}}
 			>
 				<Swipeable onEnded={handleSwipe}>
 					<View style={styles.pagination} className="self-start my-4">
@@ -171,10 +188,8 @@ export default function index() {
 										styles.paginationIcon,
 										paginationWidthAnim(i),
 										index >= i
-											? { backgroundColor: "#FFB946" }
-											: {
-                          backgroundColor: "#99999999",
-											  },
+											? { backgroundColor: theme.colors.primary }
+											: { backgroundColor: theme.colors.text.tertiary + '99' },
 									]}
 								></Animated.View>
 							);
@@ -211,12 +226,14 @@ export default function index() {
 					className="rounded-full overflow-hidden mb-6"
 				>
 					<LinearGradient
-						colors={["#FFB946", "#FFB946"]}
+						colors={theme.colors.gradient.primary as any}
 						className="rounded-3xl px-4 py-4"
 						start={{ x: 0.5, y: 0 }}
 						end={{ x: 0.5, y: 1 }}
 					>
-						<Text className="text-white text-xl font-bold text-center">
+						<Text className={`text-xl font-bold text-center`}
+							style={{ color: theme.colors.text.light }}
+						>
 							{onboardingData[index].buttonText}
 						</Text>
 					</LinearGradient>
@@ -225,16 +242,3 @@ export default function index() {
 		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	pagination: {
-		flexDirection: "row",
-		justifyContent: "center",
-	},
-	paginationIcon: {
-		height: 10,
-		backgroundColor: "#fff",
-		borderRadius: 10,
-		marginHorizontal: 5,
-	},
-});

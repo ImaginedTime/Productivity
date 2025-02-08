@@ -1,15 +1,14 @@
+import { getData, removeData } from '@/utils/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
 
-const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
-});
+const api = axios.create({});
 
 // Add a request interceptor
 api.interceptors.request.use(
   async (config) => {
     // Get token from secure storage
-    const token = await SecureStore.getItemAsync('userToken');
+    const token = await getData("token");
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,7 +27,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // Clear token and redirect to login
-      await SecureStore.deleteItemAsync('userToken');
+      await removeData("token");
       // You'll need to implement navigation to login screen here
     }
     return Promise.reject(error);

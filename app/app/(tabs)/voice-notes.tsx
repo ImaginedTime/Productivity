@@ -8,20 +8,26 @@ import {
 	Clipboard,
 	Platform,
 	Alert,
+	Pressable,
 } from "react-native";
 import {
 	ExpoSpeechRecognitionModule,
 	useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { ToastAndroid } from "react-native";
 import axios from "axios";
+import { theme } from '@/constants/theme';
+import Tips from "@/components/voice-notes/tips";
 
 export default function VoiceNotes() {
 	const [text, setText] = useState("");
+	const [translatedText, setTranslatedText] = useState("");
 	const [recognizing, setRecognizing] = useState(false);
 	const [enhancing, setEnhancing] = useState(false);
+	const [translating, setTranslating] = useState(false);
+	const [showTranslation, setShowTranslation] = useState(false);
 	const [selection, setSelection] = useState({ start: 0, end: 0 });
 	const textInputRef = useRef<TextInput>(null);
 	const lastTranscriptRef = useRef("");
@@ -86,9 +92,10 @@ export default function VoiceNotes() {
 
 		try {
 			setEnhancing(true);
-			const response = await axios.post('https://bf41-203-110-242-44.ngrok-free.app/enhance-text', {
+			const url = 'https://c8c0-203-110-242-40.ngrok-free.app/enhance-text';
+			const response = await axios.post(url, {
 				text,
-				language
+				lang: language
 			});
 			handleTextChange(response.data.enhanced_text);
 			ToastAndroid.show("Text enhanced successfully", ToastAndroid.SHORT);
@@ -151,6 +158,30 @@ export default function VoiceNotes() {
 		setSelection({ start: 0, end: text.length });
 	};
 
+	const handleTranslate = async () => {
+		try {
+			setTranslating(true);
+			const url = "https://c8c0-203-110-242-40.ngrok-free.app/translate"
+			const response = await axios.post(url, {
+				text,
+				target_lang: language === "en" ? "hi" : "en"
+			});
+
+			setTranslatedText(response.data.translated_text);
+			setShowTranslation(true);
+		} catch (error) {
+			Alert.alert("Error", "Failed to translate text");
+		} finally {
+			setTranslating(false);
+		}
+	};
+
+	const handleDismissTranslation = () => {
+		setShowTranslation(false);
+		setText("");
+		setTranslatedText("");
+	};
+
 	const TextControl = ({ icon, label, onPress, disabled = false }: {
 		icon: any,
 		label: string,
@@ -162,66 +193,83 @@ export default function VoiceNotes() {
 			disabled={disabled}
 			className={`flex-row items-center px-3 py-2 ${disabled ? 'opacity-50' : ''}`}
 		>
-			<Feather name={icon} size={18} color="#FFB946" />
-			<Text className="text-gray-700 ml-2 text-sm">{label}</Text>
+			<Feather name={icon} size={18} color={theme.colors.primary} />
+			<Text style={{ color: theme.colors.text.secondary }} className="ml-2 text-sm">{label}</Text>
 		</TouchableOpacity>
 	);
 
 	const LanguageSelector = () => (
-		<View className="flex-row bg-white rounded-xl p-2 mb-4 shadow-sm">
-			<TouchableOpacity
-				onPress={() => setLanguage("en")}
-				className={`flex-1 p-2 rounded-lg mr-2 ${
-					language === "en" ? "bg-[#FFB94620]" : "bg-gray-50"
-				}`}
+		<View className="flex-row items-center justify-center bg-white rounded-xl p-3 mb-4 shadow-sm">
+			{/* Current Language */}
+			<View 
+				style={{ 
+					backgroundColor: theme.colors.primaryBg
+				}}
+				className="px-4 py-2 rounded-lg flex-1"
 			>
 				<Text
-					className={`text-center ${
-						language === "en" ? "text-[#FFB946]" : "text-gray-600"
-					}`}
+					style={{ color: theme.colors.primary }}
+					className="text-center font-medium"
 				>
-					English
+					{language === "en" ? "English" : "हिंदी"}
 				</Text>
-			</TouchableOpacity>
-			<TouchableOpacity
-				onPress={() => setLanguage("hi")}
-				className={`flex-1 p-2 rounded-lg ${
-					language === "hi" ? "bg-[#FFB94620]" : "bg-gray-50"
-				}`}
+			</View>
+
+			{/* Switch Button */}
+			<Pressable
+				onPress={() => setLanguage(language === "en" ? "hi" : "en")}
+				className="mx-4"
+			>
+				<View className="flex-row items-center">
+					<AntDesign
+						name="swap"
+						size={20}
+						color={theme.colors.primary}
+					/>
+				</View>
+			</Pressable>
+
+			{/* Target Language */}
+			<View 
+				style={{ 
+					backgroundColor: theme.colors.background
+				}}
+				className="px-4 py-2 rounded-lg flex-1"
 			>
 				<Text
-					className={`text-center ${
-						language === "hi" ? "text-[#FFB946]" : "text-gray-600"
-					}`}
+					style={{ color: theme.colors.text.secondary }}
+					className="text-center"
 				>
-					हिंदी
+					{language === "en" ? "हिंदी" : "English"}
 				</Text>
-			</TouchableOpacity>
+			</View>
 		</View>
 	);
 
 	return (
-		<View className="flex-1 bg-gray-50">
+		<View style={{ backgroundColor: theme.colors.background }} className="flex-1">
 			<LinearGradient
-				colors={["#FFB946", "#FFD700"]}
+				colors={theme.colors.gradient.primary as any}
 				className="px-6 pt-6 pb-4 rounded-b-3xl"
 			>
-				<Text className="text-2xl font-bold text-white">Voice Notes</Text>
-				<Text className="text-white/80">
+				<Text style={{ color: theme.colors.text.light }} className="text-2xl font-bold">
+					Voice Notes
+				</Text>
+				<Text style={{ color: `${theme.colors.text.light}cc` }}>
 					{language === "en" ? "Speak or type your thoughts" : "बोलें या टाइप करें"}
 				</Text>
 			</LinearGradient>
 
 			<ScrollView className="flex-1 px-4 pt-4">
-				{/* Language Selector */}
 				<LanguageSelector />
 
 				{/* Text Controls */}
-				<View className="bg-white rounded-t-xl shadow-sm">
+				<View style={{ backgroundColor: theme.colors.card }} className="rounded-t-xl shadow-sm">
 					<ScrollView 
 						horizontal 
 						showsHorizontalScrollIndicator={false}
-						className="border-b border-gray-100 py-1"
+						className="border-b py-1"
+						style={{ borderColor: theme.colors.border }}
 					>
 						<TextControl
 							icon="rotate-ccw"
@@ -257,104 +305,127 @@ export default function VoiceNotes() {
 				</View>
 
 				{/* Text Input */}
-				<View className="bg-white rounded-b-xl p-4 shadow-sm mb-4">
+				<View style={{ backgroundColor: theme.colors.card }} className="rounded-b-xl p-4 shadow-sm mb-4">
 					<TextInput
 						ref={textInputRef}
-						className="min-h-[200px] text-gray-800 text-lg"
+						className="min-h-[200px] text-lg"
+						style={{
+							color: theme.colors.text.primary,
+							paddingHorizontal: 8,
+							paddingVertical: 8,
+						}}
 						placeholder={
 							language === "en"
 								? "Start speaking or type your text here..."
 								: "बोलना शुरू करें या यहां टाइप करें..."
 						}
+						placeholderTextColor={theme.colors.text.tertiary}
 						multiline
 						value={text}
 						onChangeText={handleTextChange}
 						onSelectionChange={(event) => {
 							const newSelection = event.nativeEvent.selection;
 							setSelection(newSelection);
-							
-							// Optional: Scroll to make selection visible
 							textInputRef.current?.setNativeProps({
 								selection: newSelection
 							});
 						}}
 						textAlignVertical="top"
-						selectionColor="rgba(255, 185, 70, 0.3)" // More visible selection color
+						selectionColor={`${theme.colors.primary}4D`}
 						contextMenuHidden={false}
 						keyboardType={Platform.OS === 'ios' ? 'default' : 'visible-password'}
-						style={{
-							// Add padding for better text selection
-							paddingHorizontal: 8,
-							paddingVertical: 8,
-						}}
 					/>
 				</View>
 
-				{/* Show selection info when text is selected */}
+				{/* Selection Info */}
 				{selection.start !== selection.end && (
-					<View className="bg-[#FFB94610] rounded-lg p-2 mt-2 mb-4">
-						<Text className="text-gray-600 text-sm">
+					<View style={{ backgroundColor: theme.colors.primaryBg }} className="rounded-lg p-2 mt-2 mb-4">
+						<Text style={{ color: theme.colors.text.secondary }} className="text-sm">
 							{selection.end - selection.start} characters selected
 						</Text>
 					</View>
 				)}
 
+				{/* Action Buttons */}
 				{text.trim() && (
-					<TouchableOpacity
-						className={`bg-white rounded-xl p-4 shadow-sm mb-4 flex-row items-center justify-center ${
-							enhancing ? 'opacity-70' : ''
-						}`}
-						onPress={handleEnhance}
-						disabled={enhancing}
-					>
-						<MaterialIcons 
-							name="auto-fix-high" 
-							size={24} 
-							color="#FFB946" 
-							style={{ marginRight: 8 }}
-						/>
-						<Text className="text-[#FFB946] font-medium">
-							{enhancing ? "Enhancing..." : "Enhance Text"}
-						</Text>
-					</TouchableOpacity>
+					<View className="flex-row space-x-3 gap-4 mb-4">
+						<TouchableOpacity
+							style={{ backgroundColor: theme.colors.card }}
+							className={`flex-1 rounded-xl p-4 shadow-sm flex-row items-center justify-center ${
+								enhancing ? 'opacity-70' : ''
+							}`}
+							onPress={handleEnhance}
+							disabled={enhancing}
+						>
+							<MaterialIcons 
+								name="auto-fix-high" 
+								size={24} 
+								color={theme.colors.primary}
+								style={{ marginRight: 8 }}
+							/>
+							<Text style={{ color: theme.colors.primary }} className="font-medium">
+								{enhancing ? "Enhancing..." : "Enhance"}
+							</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={{ backgroundColor: theme.colors.card }}
+							className={`flex-1 rounded-xl p-4 shadow-sm flex-row items-center justify-center ${
+								translating ? 'opacity-70' : ''
+							}`}
+							onPress={handleTranslate}
+							disabled={translating}
+						>
+							<Feather 
+								name="globe" 
+								size={24} 
+								color={theme.colors.primary}
+								style={{ marginRight: 8 }}
+							/>
+							<Text style={{ color: theme.colors.primary }} className="font-medium">
+								{translating ? "Translating..." : "Translate"}
+							</Text>
+						</TouchableOpacity>
+					</View>
 				)}
 
-				<View className="bg-white rounded-xl p-4 shadow-sm mb-4">
-					<Text className="text-lg font-bold text-gray-800 mb-3">Tips</Text>
-					<View className="space-y-3">
-						<View className="flex-row items-center">
-							<Feather name="mic" size={20} color="#FFB946" />
-							<Text className="text-gray-600 ml-2">
-								Tap the microphone button to start/stop recording
+				{/* Translation Result */}
+				{showTranslation && (
+					<View style={{ backgroundColor: theme.colors.card }} className="rounded-xl p-4 shadow-sm mb-4">
+						<View className="flex-row justify-between items-center mb-3">
+							<Text style={{ color: theme.colors.text.primary }} className="text-lg font-bold">
+								Translation
 							</Text>
+							<Pressable
+								onPress={handleDismissTranslation}
+								style={{ backgroundColor: theme.colors.background }}
+								className="p-2 rounded-full"
+							>
+								<Feather name="x" size={20} color={theme.colors.text.tertiary} />
+							</Pressable>
 						</View>
-						<View className="flex-row items-center">
-							<MaterialIcons name="auto-fix-high" size={20} color="#FFB946" />
-							<Text className="text-gray-600 ml-2">
-								Use enhance to improve grammar and clarity
-							</Text>
-						</View>
-						<View className="flex-row items-center">
-							<Feather name="edit-2" size={20} color="#FFB946" />
-							<Text className="text-gray-600 ml-2">
-								Edit text manually at any time
-							</Text>
-						</View>
+						<Text style={{ color: theme.colors.text.secondary }} className="text-base">
+							{translatedText}
+						</Text>
 					</View>
-				</View>
+				)}
+
+				{/* Tips Section - Only show when not showing translation */}
+				{!showTranslation && <Tips />}
 			</ScrollView>
 
-			{/* Floating Action Button */}
+			{/* FAB */}
 			<TouchableOpacity
-				className={`absolute bottom-6 right-6 w-16 h-16 rounded-full shadow-lg items-center justify-center ${
-					recognizing ? 'bg-red-500' : 'bg-[#FFB946]'
-				}`}
+				style={{ 
+					backgroundColor: recognizing ? theme.colors.error : theme.colors.primary 
+				}}
+				className="absolute bottom-6 right-6 w-16 h-16 rounded-full shadow-lg items-center justify-center"
 				onPress={recognizing ? handleStopListening : handleStartListening}
 			>
 				<Feather
 					name={recognizing ? "mic-off" : "mic"}
 					size={28}
-					color="white"
+					color={theme.colors.text.light}
 				/>
 			</TouchableOpacity>
 		</View>

@@ -6,8 +6,9 @@ import { Alert, BackHandler, Dimensions, View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 
 import { LinearGradient } from "expo-linear-gradient";
+import { theme } from '@/constants/theme';
 
-export default function _layout() {
+export default function TabLayout() {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const { width } = Dimensions.get("window");
 
@@ -86,7 +87,7 @@ export default function _layout() {
 				screenOptions={{
 					headerShown: false,
 					tabBarStyle: {
-						backgroundColor: "#fff",
+						backgroundColor: theme.colors.card,
 						height: tabBarHeight,
 						borderTopLeftRadius: 20,
 						borderTopRightRadius: 20,
@@ -101,16 +102,12 @@ export default function _layout() {
 						title: "Voice Notes",
 						tabBarIcon: ({ focused }) => (
 							<LinearGradient
-								colors={
-									focused
-										? ["#FFB946", "#FFD700"]
-										: ["#fff", "#fff"]
-								}
+								colors={focused ? theme.colors.gradient.primary as any : [theme.colors.card, theme.colors.card]}
 								className="flex justify-center items-center"
 								style={{
 									padding,
 									minWidth: getMinWidth(),
-									borderRadius: 100,
+									borderRadius: theme.borderRadius.full,
 									height: 40,
 									marginTop: focused ? 15 : 20,
 								}}
@@ -120,7 +117,7 @@ export default function _layout() {
 								<Feather
 									name="mic"
 									size={iconSize}
-									color={focused ? "#fff" : "#FFB946"}
+									color={focused ? theme.colors.text.light : theme.colors.primary}
 								/>
 							</LinearGradient>
 						),
@@ -133,16 +130,12 @@ export default function _layout() {
 						title: "Tasks",
 						tabBarIcon: ({ focused }) => (
 							<LinearGradient
-								colors={
-									focused
-										? ["#FFB946", "#FFD700"]
-										: ["#fff", "#fff"]
-								}
+								colors={focused ? theme.colors.gradient.primary as any : [theme.colors.card, theme.colors.card]}
 								className="flex justify-center items-center"
 								style={{
 									padding,
 									minWidth: getMinWidth(),
-									borderRadius: 100,
+									borderRadius: theme.borderRadius.full,
 									height: 40,
 									marginTop: focused ? 15 : 20,
 								}}
@@ -152,7 +145,7 @@ export default function _layout() {
 								<Feather
 									name="calendar"
 									size={iconSize}
-									color={focused ? "#fff" : "#FFB946"}
+									color={focused ? theme.colors.text.light : theme.colors.primary}
 								/>
 							</LinearGradient>
 						),
@@ -166,16 +159,12 @@ export default function _layout() {
 						tabBarIcon: ({ focused }) => (
 							<View className="h-14">
 								<LinearGradient
-									colors={
-										focused
-											? ["#FFB946", "#FFD700"]
-											: ["#fff", "#fff"]
-									}
+									colors={focused ? theme.colors.gradient.primary as any : [theme.colors.card, theme.colors.card]}
 									className="flex justify-center items-center"
 									style={{
 										padding,
 										minWidth: getMinWidth(),
-										borderRadius: 100,
+										borderRadius: theme.borderRadius.full,
 										height: 40,
 										marginTop: focused ? 15 : 15,
 									}}
@@ -185,7 +174,7 @@ export default function _layout() {
 									<Feather
 										name="home"
 										size={iconSize}
-										color={focused ? "#fff" : "#FFB946"}
+										color={focused ? theme.colors.text.light : theme.colors.primary}
 									/>
 								</LinearGradient>
 							</View>
@@ -199,16 +188,12 @@ export default function _layout() {
 						title: "Documents",
 						tabBarIcon: ({ focused }) => (
 							<LinearGradient
-								colors={
-									focused
-										? ["#FFB946", "#FFD700"]
-										: ["#fff", "#fff"]
-								}
+								colors={focused ? theme.colors.gradient.primary as any : [theme.colors.card, theme.colors.card]}
 								className="flex justify-center items-center"
 								style={{
 									padding,
 									minWidth: getMinWidth(),
-									borderRadius: 100,
+									borderRadius: theme.borderRadius.full,
 									height: 40,
 									marginTop: focused ? 15 : 20,
 								}}
@@ -218,7 +203,7 @@ export default function _layout() {
 								<Feather
 									name="file-text"
 									size={iconSize}
-									color={focused ? "#fff" : "#FFB946"}
+									color={focused ? theme.colors.text.light : theme.colors.primary}
 								/>
 							</LinearGradient>
 						),
@@ -231,16 +216,12 @@ export default function _layout() {
 						title: "Profile",
 						tabBarIcon: ({ focused }) => (
 							<LinearGradient
-								colors={
-									focused
-										? ["#FFB946", "#FFD700"]
-										: ["#fff", "#fff"]
-								}
+								colors={focused ? theme.colors.gradient.primary as any : [theme.colors.card, theme.colors.card]}
 								className="flex justify-center items-center"
 								style={{
 									padding,
 									minWidth: getMinWidth(),
-									borderRadius: 100,
+									borderRadius: theme.borderRadius.full,
 									height: 40,
 									marginTop: focused ? 15 : 20,
 								}}
@@ -250,7 +231,7 @@ export default function _layout() {
 								<Feather
 									name="user"
 									size={iconSize}
-									color={focused ? "#fff" : "#FFB946"}
+									color={focused ? theme.colors.text.light : theme.colors.primary}
 								/>
 							</LinearGradient>
 						),

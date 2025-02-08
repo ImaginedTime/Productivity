@@ -10,8 +10,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useUserContext } from "@/context/userContext";
-import { getData } from "@/utils/storage";
 import { format, isToday, isTomorrow, isPast } from "date-fns";
+import { theme } from '@/constants/theme';
 
 interface Task {
 	id: string;
@@ -29,12 +29,8 @@ interface Document {
 
 export default function Dashboard() {
 	const navigation = useNavigation<any>();
-	// Simulated data - replace with actual data later
-	const [recentDocs, setRecentDocs] = useState<Document[]>([]);
 
 	const { user, token, tasks, savedSpeeches } = useUserContext();
-
-	console.log(tasks);
 
 	const QuickActionButton = ({
 		icon,
@@ -49,8 +45,8 @@ export default function Dashboard() {
 			onPress={onPress}
 			className="items-center bg-white rounded-2xl p-4 flex-1 mx-2 shadow-sm"
 		>
-			<View className="bg-[#FFB94610] p-3 rounded-full mb-2">
-				<Feather name={icon} size={24} color="#FFB946" />
+			<View className={`p-3 rounded-full mb-2`} style={{ backgroundColor: theme.colors.primaryBg}}>
+				<Feather name={icon} size={24} color={theme.colors.primary} />
 			</View>
 			<Text className="text-gray-800 text-sm font-medium">{label}</Text>
 		</Pressable>
@@ -66,8 +62,8 @@ export default function Dashboard() {
 		icon: any;
 	}) => (
 		<View className="bg-white rounded-2xl p-6 mb-4 items-center">
-			<View className="bg-[#FFB94610] p-4 rounded-full mb-4">
-				<Feather name={icon} size={32} color="#FFB946" />
+			<View className={`p-4 rounded-full mb-4`} style={{ backgroundColor: theme.colors.primaryBg}}>
+				<Feather name={icon} size={32} color={theme.colors.primary} />
 			</View>
 			<Text className="text-lg font-bold text-gray-800 mb-2">
 				{title}
@@ -80,7 +76,7 @@ export default function Dashboard() {
 		// Filter out completed tasks and sort by deadline
 		const pendingTasks = tasks
 			?.filter(task => !task.completed)
-			.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()) || [];
+			.sort((a, b) => new Date(a.deadline as any).getTime() - new Date(b.deadline as any).getTime()) || [];
 
 		if (!pendingTasks || pendingTasks.length === 0) {
 			return (
@@ -120,18 +116,18 @@ export default function Dashboard() {
 							</Text>
 							<View
 								className={`px-3 py-1 rounded-full ${
-									task.priority === "high"
+									task.priority === "HIGH"
 										? "bg-red-100"
-										: task.priority === "medium"
+										: task.priority === "MEDIUM"
 										? "bg-orange-100"
 										: "bg-green-100"
 								}`}
 							>
 								<Text
 									className={`text-xs ${
-										task.priority === "high"
+										task.priority === "HIGH"
 											? "text-red-600"
-											: task.priority === "medium"
+											: task.priority === "MEDIUM"
 											? "text-orange-600"
 											: "text-green-600"
 									}`}
@@ -142,10 +138,10 @@ export default function Dashboard() {
 						</View>
 						<Text 
 							className={`text-sm mt-1 ${
-								isPast(new Date(task.deadline)) ? 'text-red-500' : 'text-gray-500'
+								isPast(new Date(task.deadline as any)) ? 'text-red-500' : 'text-gray-500'
 							}`}
 						>
-							Due: {formatDeadline(task.deadline)}
+							Due: {formatDeadline(task.deadline as any)}
 						</Text>
 					</TouchableOpacity>
 				))}
@@ -163,52 +159,115 @@ export default function Dashboard() {
 		);
 	};
 
-	const renderSpeeches = () => {
+	const getTemplateIcon = (templateId: string) => {
+		switch (templateId) {
+			case '1': return 'mic';
+			case '2': return 'smile';
+			case '3': return 'award';
+			case '4': return 'users';
+			case '5': return 'book';
+			case '6': return 'box';
+			default: return 'file-text';
+		}
+	};
+
+	const getTemplateTitle = (templateId: string) => {
+		switch (templateId) {
+			case '1': return 'General Speech';
+			case '2': return 'Inspirational';
+			case '3': return 'Award Speech';
+			case '4': return 'Farewell';
+			case '5': return 'Educational';
+			case '6': return 'Product Launch';
+			default: return 'Speech';
+		}
+	};
+
+	const renderRecentSpeeches = () => {
 		if (savedSpeeches.length === 0) {
 			return (
-				<EmptyStateCard
-					title="No Speeches Yet"
-					description="Generate your first speech using AI"
-					icon="file-text"
-				/>
+				<View 
+					style={{ backgroundColor: theme.colors.card }}
+					className="rounded-xl p-6 items-center"
+				>
+					<Feather 
+						name="file-text" 
+						size={48} 
+						color={theme.colors.text.tertiary}
+					/>
+					<Text 
+						style={{ color: theme.colors.text.secondary }}
+						className="text-center mt-4"
+					>
+						No speeches yet. Create your first speech!
+					</Text>
+					<TouchableOpacity
+						onPress={() => navigation.navigate('documents')}
+						style={{ backgroundColor: theme.colors.primary }}
+						className="mt-4 rounded-lg px-6 py-2"
+					>
+						<Text style={{ color: theme.colors.text.light }}>
+							Create Speech
+						</Text>
+					</TouchableOpacity>
+				</View>
 			);
 		}
 
-		return (
-			<View>
-				{savedSpeeches.slice(0, 3).map((speech: any) => (
-					<TouchableOpacity
-						key={speech.id}
-						onPress={() => navigation.navigate("documents")}
-						className="bg-white rounded-xl p-4 mb-3 shadow-sm"
+		return savedSpeeches.slice(0, 3).map((speech) => (
+			<TouchableOpacity
+				key={speech.id}
+				onPress={() => navigation.navigate('profile')}
+				style={{ backgroundColor: theme.colors.card }}
+				className="rounded-xl p-4 mb-3"
+			>
+				<View className="flex-row items-center mb-3">
+					<View 
+						style={{ backgroundColor: theme.colors.primaryBg }}
+						className="w-10 h-10 rounded-lg items-center justify-center"
 					>
-						<Text className="text-gray-800 font-medium">
-							{speech.topic}
+						<Feather 
+							name={getTemplateIcon(speech.template)}
+							size={20}
+							color={theme.colors.primary}
+						/>
+					</View>
+					<View className="ml-3 flex-1">
+						<Text 
+							style={{ color: theme.colors.text.primary }}
+							className="font-semibold"
+						>
+							{getTemplateTitle(speech.template)}
 						</Text>
-						<Text className="text-gray-500 text-sm mt-1">
-							{speech.duration} minutes • {speech.audience}
+						<Text 
+							style={{ color: theme.colors.text.tertiary }}
+							className="text-xs"
+						>
+							{new Date(speech.createdAt).toLocaleDateString()}
 						</Text>
-					</TouchableOpacity>
-				))}
-				{savedSpeeches.length > 3 && (
-					<TouchableOpacity
-						onPress={() => navigation.navigate("documents")}
-						className="bg-[#FFB94610] rounded-lg p-3 items-center"
-					>
-						<Text className="text-[#FFB946] font-medium">
-							View {savedSpeeches.length - 3} More Speeches
-						</Text>
-					</TouchableOpacity>
-				)}
-			</View>
-		);
+					</View>
+					<Feather 
+						name="chevron-right" 
+						size={20} 
+						color={theme.colors.text.tertiary}
+					/>
+				</View>
+				<Text 
+					style={{ color: theme.colors.text.secondary }}
+					className="text-sm"
+					numberOfLines={2}
+				>
+					{speech.speech.slice(0, 150)}...
+				</Text>
+			</TouchableOpacity>
+		));
 	};
 
 	return (
 		<ScrollView className="flex-1 bg-gray-50">
 			{/* Header */}
 			<LinearGradient
-				colors={["#FFB946", "#FFD700"]}
+				colors={theme.colors.gradient.primary as any}
 				className="px-6 pt-6 pb-8 rounded-b-3xl"
 			>
 				<Text className="text-2xl font-bold text-white mb-2">
@@ -236,8 +295,8 @@ export default function Dashboard() {
 						onPress={() => navigation.navigate("tasks")}
 					/>
 					<QuickActionButton
-						icon="file-plus"
-						label="New Doc"
+						icon="file-text"
+						label="New Speech"
 						onPress={() => navigation.navigate("documents")}
 					/>
 				</View>
@@ -256,7 +315,7 @@ export default function Dashboard() {
 				<Text className="text-lg font-bold text-gray-800 mb-4">
 					Recent Speeches
 				</Text>
-				{renderSpeeches()}
+				{renderRecentSpeeches()}
 			</View>
 
 			{/* Getting Started Guide */}
@@ -266,20 +325,20 @@ export default function Dashboard() {
 				</Text>
 				<View className="bg-white rounded-2xl p-6">
 					<View className="flex-row items-center mb-4">
-						<View className="bg-[#FFB94610] p-2 rounded-full mr-4">
-							<Feather name="info" size={24} color="#FFB946" />
+						<View className={`p-2 rounded-full mr-4`} style={{ backgroundColor: theme.colors.primaryBg}}>
+							<Feather name="info" size={24} color={theme.colors.primary} />
 						</View>
 						<Text className="text-gray-800 font-bold">
 							Quick Tips
 						</Text>
 					</View>
 
-					<View className="space-y-4">
+					<View className="space-y-4 gap-2">
 						<View className="flex-row items-center">
 							<Feather
 								name="check-circle"
 								size={20}
-								color="#FFB946"
+								color={theme.colors.primary}
 								className="mr-2"
 							/>
 							<Text className="text-gray-600 ml-2">
@@ -290,7 +349,7 @@ export default function Dashboard() {
 							<Feather
 								name="check-circle"
 								size={20}
-								color="#FFB946"
+								color={theme.colors.primary}
 								className="mr-2"
 							/>
 							<Text className="text-gray-600 ml-2">
@@ -301,7 +360,7 @@ export default function Dashboard() {
 							<Feather
 								name="check-circle"
 								size={20}
-								color="#FFB946"
+								color={theme.colors.primary}
 								className="mr-2"
 							/>
 							<Text className="text-gray-600 ml-2">
@@ -314,12 +373,15 @@ export default function Dashboard() {
 						onPress={() => {
 							/* Add onboarding or help guide navigation */
 						}}
-						className="mt-6 flex-row items-center justify-center bg-[#FFB94610] py-3 rounded-xl"
+						className="mt-6 flex-row items-center justify-center py-3 rounded-xl"
+						style={{ backgroundColor: theme.colors.primaryBg}}
 					>
-						<Text className="text-[#FFB946] font-medium mr-2">
+						<Text className="font-medium mr-2"
+							style={{ color: theme.colors.primary }}
+						>
 							View Full Guide
 						</Text>
-						<Feather name="arrow-right" size={20} color="#FFB946" />
+						<Feather name="arrow-right" size={20} color={theme.colors.primary} />
 					</Pressable>
 				</View>
 			</View>
