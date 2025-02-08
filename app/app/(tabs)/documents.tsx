@@ -10,7 +10,7 @@ import { useUserContext } from '@/context/userContext'
 import { storeData } from '@/utils/storage'
 import Markdown from 'react-native-markdown-display'
 
-const BASE_URL = 'https://c8c0-203-110-242-40.ngrok-free.app'
+const BASE_URL = 'https://ai-volution-mdhv.onrender.com'
 
 export default function Documents() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(templates[0])

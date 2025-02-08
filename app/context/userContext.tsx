@@ -59,22 +59,6 @@ const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [savedSpeeches, setSavedSpeeches] = useState<SavedSpeechType[]>([]);
 
-	const fetchTasks = async () => {
-		try {
-			const response = await axios.get("/tasks");
-			console.log(response.data);
-			setTasks(response.data);
-			// Store tasks in AsyncStorage
-			await storeData("tasks", response.data);
-		} catch (error) {
-			// If API fails, try to get tasks from AsyncStorage
-			const storedTasks = await getData("tasks");
-			if (storedTasks) {
-				setTasks(storedTasks);
-			}
-		}
-	};
-
 	useEffect(() => {
 		const initializeData = async () => {
 			// Get user data
@@ -96,9 +80,6 @@ const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 			if (storedTasks) {
 				setTasks(storedTasks);
 			}
-
-			// Then fetch latest from API
-			fetchTasks();
 		};
 
 		initializeData();

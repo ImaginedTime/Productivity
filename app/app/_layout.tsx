@@ -8,7 +8,7 @@ import React from "react";
 
 import "@/global.css";
 import axios from "axios";
-axios.defaults.baseURL = "https://a095-203-110-242-41.ngrok-free.app";
+axios.defaults.baseURL = "https://productivity-xid3.onrender.com";
 
 export default function RootLayout() {
 	const [appIsReady, setAppIsReady] = useState(false);

@@ -92,7 +92,7 @@ export default function VoiceNotes() {
 
 		try {
 			setEnhancing(true);
-			const url = 'https://c8c0-203-110-242-40.ngrok-free.app/enhance-text';
+			const url = 'https://ai-volution-mdhv.onrender.com/enhance-text';
 			const response = await axios.post(url, {
 				text,
 				lang: language
@@ -100,6 +100,7 @@ export default function VoiceNotes() {
 			handleTextChange(response.data.enhanced_text);
 			ToastAndroid.show("Text enhanced successfully", ToastAndroid.SHORT);
 		} catch (error) {
+			// console.error('Failed to enhance text:', error?.response!.data);
 			Alert.alert('Error', 'Failed to enhance text. Please try again.');
 		} finally {
 			setEnhancing(false);
@@ -161,7 +162,7 @@ export default function VoiceNotes() {
 	const handleTranslate = async () => {
 		try {
 			setTranslating(true);
-			const url = "https://c8c0-203-110-242-40.ngrok-free.app/translate"
+			const url = "https://ai-volution-mdhv.onrender.com/translate"
 			const response = await axios.post(url, {
 				text,
 				target_lang: language === "en" ? "hi" : "en"
