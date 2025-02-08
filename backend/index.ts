@@ -8,7 +8,7 @@ import "@/config/passport";
 
 // Import routes (we'll create these next)
 import authRoutes from "@/routes/auth";
-import taskRoutes from "@/routes/tasks";
+// import taskRoutes from "@/routes/tasks";
 
 dotenv.config();
 const app = express();
@@ -80,7 +80,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/tasks", taskRoutes);
+// app.use("/tasks", taskRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
